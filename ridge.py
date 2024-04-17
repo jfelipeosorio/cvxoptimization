@@ -105,5 +105,5 @@ plt.title('Ridge regression: GD vs AGD')
 plt.legend(["GD", "AGD"], loc="upper right")
 plt.xlabel('Iteration')
 plt.ylabel('Loss')
-plt.savefig('ridgeout.png')
+plt.savefig('ridgeout.png',dpi=300)
 
