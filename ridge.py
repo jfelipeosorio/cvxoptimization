@@ -99,6 +99,7 @@ for i in range(50):
 
 
 # Plot
+plt.figure(figsize=(9, 7))
 plt.semilogy(loss_GD, )
 plt.semilogy(loss_AGD)
 plt.title('Ridge regression: GD vs AGD')
