@@ -7,7 +7,8 @@
 import jax
 from jax import vmap, grad, random, jit
 import jax.numpy as jnp
-import matplotlib as plt
+import matplotlib.pyplot as plt
+plt.style.use("ggplot")
 
 
 # Given parameters in the problem
@@ -64,14 +65,45 @@ x = x0
 # Store values of the loss
 loss_GD = []
 # Iterate
-for i in range(51):
+for i in range(50):
     x = x - lr*grad_L(A,x,y,lmbd)
     # Loss at current iterate
     loss = L(A,x,y,lmbd)
     loss_GD.append(loss)
     print('Iteration {}, Loss {}'.format(i,loss))
 
-plt.plot(loss_GD)
-plt.show()
+# Accelarated gradient descent
 
-# added something
+# Learning rate
+lr = 1/beta
+# Initial value for x and a's
+x = x0
+xprev = x0
+a = 1
+aprev = 1
+# Store values of the loss
+loss_AGD = []
+for i in range(50):
+    u = x + a*(1/aprev - 1)*(x - xprev)
+    xnext = u - 1/beta*grad_L(A,u,y,lmbd)
+    # Loss at current iterate
+    loss = L(A,xnext,y,lmbd)
+    loss_AGD.append(loss)
+    print('Iteration {}, Loss {}'.format(i,loss))
+    # Update x's
+    xprev = jnp.copy(x)
+    x = jnp.copy(xnext)
+    # Set extrapolation coefficient
+    aprev = jnp.copy(a)
+    a = 0.5*(jnp.sqrt(a**4 + 4*a**2) - a**2)
+
+
+# Plot
+plt.semilogy(loss_GD, )
+plt.semilogy(loss_AGD)
+plt.title('Ridge regression: GD vs AGD')
+plt.legend(["GD", "AGD"], loc="upper right")
+plt.xlabel('Iteration')
+plt.ylabel('Loss')
+plt.savefig('ridgeout.png')
+
