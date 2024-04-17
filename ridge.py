@@ -74,3 +74,4 @@ for i in range(51):
 plt.plot(loss_GD)
 plt.show()
 
+# added something
