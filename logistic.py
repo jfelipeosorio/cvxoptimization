@@ -29,7 +29,6 @@ beta = 4*(m+n) + lmbd
 
 # Generate design matrix
 key1 = random.key(1)
-key1PRNG = jax.random.PRNGKey(1)
 X = random.normal(shape=(m,n), key = key1)
 # Generate theta optimal
 thetaopt = jnp.ones((n,))
