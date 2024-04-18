@@ -4,6 +4,7 @@
 # Math for DS 
 
 # Import libraries
+import numpy as np
 import jax
 from jax import vmap, grad, random, jit
 import jax.numpy as jnp
@@ -39,13 +40,15 @@ z = jnp.dot(X,thetaopt)
 # Generate p: True probabilities
 p = 1/(1 + jnp.exp(-z))
 # Generate y from p
-y = jax.random.bernoulli(key = key1, p=p)
-
+y = np.array(jax.random.bernoulli(key = key1, p=p))
+y[y == 1] = 1
+y[y == 0] = -1
+y = jnp.array(y)
 # Cost function
 
 def L(X,theta,y,lmbd):
     # Data miss fit
-    data_missfit = jnp.sum(jnp.log(jnp.multiply(y,jnp.dot(X,theta))))
+    data_missfit = jnp.sum(jnp.log(1 + jnp.exp(-jnp.multiply(y,jnp.dot(X,theta)))))
     # Regularization
     reg = lmbd/2*jnp.sum(jnp.power(theta,2))
     return data_missfit + reg
@@ -58,21 +61,20 @@ lr = 1/beta
 # Initial value of x
 key2 = random.key(2)
 theta0 = random.normal(shape=(n,), key = key2)
-theta0 = thetaopt
 # Create gradient function
 grad_L = jax.jit(grad(L, argnums=1))
 
 # Gradient descent
 
 # Initial value for x
-x = x0
+theta = theta0
 # Store values of the loss
 loss_GD = []
 # Iterate
-for i in range(50):
-    x = x - lr*grad_L(A,x,y,lmbd)
+for i in range(100):
+    theta = theta - lr*grad_L(X,theta,y,lmbd)
     # Loss at current iterate
-    loss = L(A,x,y,lmbd)
+    loss = L(X,theta,y,lmbd)
     loss_GD.append(loss)
     print('Iteration {}, Loss {}'.format(i,loss))
 
@@ -80,23 +82,23 @@ for i in range(50):
 
 # Learning rate
 lr = 1/beta
-# Initial value for x and a's
-x = x0
-xprev = x0
+# Initial value for theta and a's
+theta = theta0
+thetaprev = theta0
 a = 1
 aprev = 1
 # Store values of the loss
 loss_AGD = []
-for i in range(50):
-    u = x + a*(1/aprev - 1)*(x - xprev)
-    xnext = u - 1/beta*grad_L(A,u,y,lmbd)
+for i in range(100):
+    u = theta + a*(1/aprev - 1)*(theta - thetaprev)
+    thetanext = u - 1/beta*grad_L(X,u,y,lmbd)
     # Loss at current iterate
-    loss = L(A,xnext,y,lmbd)
+    loss = L(X,thetanext,y,lmbd)
     loss_AGD.append(loss)
     print('Iteration {}, Loss {}'.format(i,loss))
-    # Update x's
-    xprev = jnp.copy(x)
-    x = jnp.copy(xnext)
+    # Update theta's
+    thetaprev = jnp.copy(theta)
+    theta = jnp.copy(thetanext)
     # Set extrapolation coefficient
     aprev = jnp.copy(a)
     a = 0.5*(jnp.sqrt(a**4 + 4*a**2) - a**2)
@@ -106,9 +108,9 @@ for i in range(50):
 plt.figure(figsize=(9, 7))
 plt.semilogy(loss_GD, )
 plt.semilogy(loss_AGD)
-plt.title('Ridge regression: GD vs AGD')
+plt.title('Logistic regression: GD vs AGD')
 plt.legend(["GD", "AGD"], loc="upper right")
 plt.xlabel('Iteration')
 plt.ylabel('Loss')
-plt.savefig('ridgeout.png',dpi=300)
+plt.savefig('logisticout.png',dpi=300)
 
