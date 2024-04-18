@@ -53,8 +53,7 @@ def L(A,x,y,lmbd):
 lr = 1/beta
 # Initial value of x
 key2 = random.key(2)
-#x0 = random.normal(shape=(n,), key = key2)
-x0 = xopt
+x0 = random.normal(shape=(n,), key = key2)
 # Create gradient function
 grad_L = jax.jit(grad(L, argnums=1))
 

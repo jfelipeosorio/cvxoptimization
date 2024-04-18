@@ -22,7 +22,7 @@ lmbd = 1
 # Variance in error
 sgm = jnp.sqrt(0.25)
 # Beta
-beta = 4*(m+n) + lmbd
+beta = 100
 
 
 # Data generation for problem
@@ -43,10 +43,11 @@ y = jax.random.bernoulli(key = key1, p=p)
 
 # Cost function
 
-def L(A,x,y,lmbd):
+def L(X,theta,y,lmbd):
     # Data miss fit
-    data_missfit = 0.5*jnp.sum(jnp.power(jnp.dot(A,x)-y,2))
-    reg = lmbd/2*jnp.sum(jnp.power(x,2))
+    data_missfit = jnp.sum(jnp.log(jnp.multiply(y,jnp.dot(X,theta))))
+    # Regularization
+    reg = lmbd/2*jnp.sum(jnp.power(theta,2))
     return data_missfit + reg
 
 
@@ -56,8 +57,8 @@ def L(A,x,y,lmbd):
 lr = 1/beta
 # Initial value of x
 key2 = random.key(2)
-#x0 = random.normal(shape=(n,), key = key2)
-x0 = xopt
+theta0 = random.normal(shape=(n,), key = key2)
+theta0 = thetaopt
 # Create gradient function
 grad_L = jax.jit(grad(L, argnums=1))
 
