@@ -14,9 +14,9 @@ plt.style.use("ggplot")
 # Given parameters in the problem
 
 # Number of observations
-m = 80  
+m = 100  
 # Number of covariates
-n = 100
+n = 50
 # Regularization strenght
 lmbd = 1
 # Variance in error
@@ -29,14 +29,18 @@ beta = 4*(m+n) + lmbd
 
 # Generate design matrix
 key1 = random.key(1)
-A = random.normal(shape=(m,n), key = key1)
-# Generate x optimal
-xopt = random.normal(shape=(n,), key = key1)
+key1PRNG = jax.random.PRNGKey(1)
+X = random.normal(shape=(m,n), key = key1)
+# Generate theta optimal
+thetaopt = jnp.ones((n,))
 # Generate gaussian error
 epsilon = sgm*random.normal(shape = (m,), key = key1)
-# Generate y
-y = jnp.dot(A,xopt) + epsilon
-
+# Generate z: True
+z = jnp.dot(X,thetaopt)
+# Generate p: True probabilities
+p = 1/(1 + jnp.exp(-z))
+# Generate y from p
+y = jax.random.bernoulli(key = key1, p=p)
 
 # Cost function
 
